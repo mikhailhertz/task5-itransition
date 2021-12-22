@@ -10,7 +10,7 @@ app.use(auth({
   authRequired: false,
   auth0Logout: true,
   secret: 'MS2_76y7hXUlcZJqmhLbh2Fuwum3q7Ylsye16QRxjD-3bgE9GDiqMo1wvS5JnEXc',
-  baseURL: 'http://localhost:9000',
+  baseURL: 'https://task5-itransition.herokuapp.com/',
   clientID: 'K65Uibv49ncUWeQIzvX5MLrqCNowuF2M',
   issuerBaseURL: 'https://dev-tk8k8at7.us.auth0.com'
 }));

@@ -4,7 +4,7 @@ function Input(properties) {
     const handleOnSubmit = (event) => {
         event.preventDefault();
         console.log(event.target.message.value);
-        fetch('http://localhost:9000/api/send', {
+        fetch('https://task5-itransition.herokuapp.com/api/send', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({'to': properties.messageTarget, 'message': event.target.message.value})
