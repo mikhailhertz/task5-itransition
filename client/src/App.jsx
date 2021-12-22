@@ -1,24 +1,14 @@
-import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import {
-    Header,
-    Footer,
-    NotFound,
-    Home
-} from "./components";
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './pages/Home.jsx';
 
 function App() {
     return (
-        <div className="d-flex flex-column vh-100">
-            <Router>
-                <Header />
-                <Routes>
-                    <Route path='*' element={<NotFound />} />
-                    <Route exact path="/" element={<Home />} />
-                </Routes>
-                <Footer />
-            </Router>
-        </div>
+        <Router>
+            <Routes>
+                <Route exact path='/' element={Home()} />
+            </Routes>
+        </Router>
     );
 }
 
