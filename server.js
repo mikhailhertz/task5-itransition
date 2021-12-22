@@ -10,7 +10,7 @@ app.use(auth({
   authRequired: false,
   auth0Logout: true,
   secret: 'MS2_76y7hXUlcZJqmhLbh2Fuwum3q7Ylsye16QRxjD-3bgE9GDiqMo1wvS5JnEXc',
-  baseURL: 'https://task5-itransition.herokuapp.com/',
+  baseURL: 'http://localhost:9000/',
   clientID: 'K65Uibv49ncUWeQIzvX5MLrqCNowuF2M',
   issuerBaseURL: 'https://dev-tk8k8at7.us.auth0.com'
 }));
@@ -22,7 +22,7 @@ const tokenRequest = {
   body: '{"client_id":"K65Uibv49ncUWeQIzvX5MLrqCNowuF2M","client_secret":"MS2_76y7hXUlcZJqmhLbh2Fuwum3q7Ylsye16QRxjD-3bgE9GDiqMo1wvS5JnEXc","audience":"https://dev-tk8k8at7.us.auth0.com/api/v2/","grant_type":"client_credentials"}'
 }
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   request(tokenRequest, (error, apiResponse, body) => {
     if (error) console.log(error);
     if (req.oidc.isAuthenticated()) {
@@ -46,7 +46,7 @@ function getUsername(user) {
   return (user.hasOwnProperty('username')) ? user.username : user.nickname;
 }
 
-app.get('/api/users', (req, res) => {
+app.get('/api/users', async (req, res) => {
   request(tokenRequest, (error, apiResponse, body) => {
     if (error) console.log(error);
     axios({
@@ -70,12 +70,24 @@ app.get('/api/users', (req, res) => {
   });
 });
 
-var messageMap = new Map();
+const messageMap = new Map();
 
 app.post('/api/send', async (req, res) => {
-  if (!messageMap.has(req.body.to)) messageMap.set(getUsername(req.oidc.user), []);
-  messageMap.get(req.body.to).unshift({ 'message': req.body.message, 'from': getUsername(req.oidc.user) });
-  res.sendStatus(201);
+  if (!messageMap.has(req.body.to)) messageMap.set(req.body.to, []);
+  request(tokenRequest, (error, apiResponse, body) => {
+    if (error) console.log(error);
+    if (req.oidc.isAuthenticated()) {
+      axios({
+        method: 'GET',
+        url: 'https://dev-tk8k8at7.us.auth0.com/api/v2/users/' + req.oidc.user.sub,
+        headers: { 'Authorization': 'Bearer ' + JSON.parse(body)['access_token'] }
+      })
+        .then(apiResponse => {
+          messageMap.get(req.body.to).unshift({ 'message': req.body.message, 'from': getUsername(apiResponse.data) });
+        })
+        .catch(error => console.log(error));
+    }
+  });
 });
 
 app.get('/api/messages', async (req, res) => {
@@ -83,7 +95,6 @@ app.get('/api/messages', async (req, res) => {
 });
 
 app.get('/', async (req, res) => {
-  messageMap.set(getUsername(req.oidc.user), []);
   res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
 });
 
