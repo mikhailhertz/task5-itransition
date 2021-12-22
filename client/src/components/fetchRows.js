@@ -1,5 +1,5 @@
 async function fetchRows(setRows) {
-    await fetch('http://localhost:9000/api/users')
+    await fetch('https://task5-itransition.herokuapp.com/api/users')
         .then(result => result = result.json())
         .then(result => setRows(result))
         .catch(error => console.log(error));
