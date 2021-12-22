@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 async function fetchMessages(setMessages) {
-    await fetch('http://localhost:9000/api/messages')
+    await fetch('https://task5-itransition.herokuapp.com/api/messages')
         .then(result => result = result.json())
         .then(result => setMessages(result))
         .catch(error => console.log(error));
