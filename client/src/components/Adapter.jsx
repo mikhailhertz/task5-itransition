@@ -3,14 +3,14 @@ import { BrowserView, MobileView } from 'react-device-detect';
 import Table from './Table.jsx'
 import List from './List.jsx'
 
-function Adapter() {
+function Adapter(properties) {
     return (
         <>
             <BrowserView>
-                <Table />
+                <Table setMessageTarget={properties.setMessageTarget} />
             </BrowserView>
             <MobileView>
-                <List />
+                <List setMessageTarget={properties.setMessageTarget} />
             </MobileView>
         </>
     );

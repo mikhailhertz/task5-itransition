@@ -5,6 +5,7 @@ const { auth } = require('express-openid-connect');
 const axios = require('axios');
 const request = require('request');
 
+app.use(express.json());
 app.use(auth({
   authRequired: false,
   auth0Logout: true,
@@ -41,6 +42,10 @@ app.use((req, res, next) => {
   });
 })
 
+function getUsername(user) {
+  return (user.hasOwnProperty('username')) ? user.username : user.nickname;
+}
+
 app.get('/api/users', (req, res) => {
   request(tokenRequest, (error, apiResponse, body) => {
     if (error) console.log(error);
@@ -51,7 +56,7 @@ app.get('/api/users', (req, res) => {
     })
       .then(apiResponse => {
         apiResponse.data.forEach(user => {
-          !user.hasOwnProperty('username') && (user.username = user.nickname);
+          user.username = getUsername(user);
           !user.hasOwnProperty('blocked') && (user.blocked = false);
           delete user.nickname;
         });
@@ -65,7 +70,20 @@ app.get('/api/users', (req, res) => {
   });
 });
 
+var messageMap = new Map();
+
+app.post('/api/send', async (req, res) => {
+  if (!messageMap.has(req.body.to)) messageMap.set(getUsername(req.oidc.user), []);
+  messageMap.get(req.body.to).unshift({ 'message': req.body.message, 'from': getUsername(req.oidc.user) });
+  res.sendStatus(201);
+});
+
+app.get('/api/messages', async (req, res) => {
+  res.json(messageMap.get(getUsername(req.oidc.user)));
+});
+
 app.get('/', async (req, res) => {
+  messageMap.set(getUsername(req.oidc.user), []);
   res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
 });
 

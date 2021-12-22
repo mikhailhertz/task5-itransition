@@ -1,10 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+
+async function fetchMessages(setMessages) {
+    await fetch('http://localhost:9000/api/messages')
+        .then(result => result = result.json())
+        .then(result => setMessages(result))
+        .catch(error => console.log(error));
+}
 
 function Messages() {
+    const FetchAndRenderMessages = () => {
+        const [messages, setMessages] = useState([]);
+        useEffect(() => {
+            fetchMessages(setMessages);
+        }, []);
+        return messages.map(message =>
+            <li className='list-group-item d-flex justify-content-between align-items-start'>
+                {message.from + ': ' + message.message}
+            </li>
+        );
+    }
     return (
-        <div className='container mt-3 justify-content-center'>
-            Messages
-        </div>
+        <ul className='list-group mt-3'>
+            {FetchAndRenderMessages()}
+        </ul>
     );
 };
 
